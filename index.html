@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="沈子钧的金属氢化物与储氢合金机器学习阶段总结">
+  <title>储氢机器学习阶段总结 | 沈子钧</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#overview">H2 · ML REVIEW</a>
+    <nav aria-label="主导航">
+      <a href="#workflows">正反向流程</a>
+      <a href="#literature">文献图谱</a>
+      <a href="#data">数据基础</a>
+      <a href="#evidence">证据边界</a>
+    </nav>
+    <span class="version" id="version"></span>
+  </header>
+
+  <main>
+    <section class="intro band" id="overview">
+      <div class="intro-copy">
+        <p class="eyebrow">阶段性研究复盘 · Review-driven research map</p>
+        <h1 id="report-title"></h1>
+        <p class="lead">以正向和逆向流程为方法主线，把模型评分、文献证据与下一步数据库工作组织成一条可复核的研究路线。</p>
+        <div class="identity"><strong id="author"></strong><span>指导教师：<b id="advisor"></b></span><span id="institution"></span></div>
+      </div>
+      <div class="intro-metrics" aria-label="阶段数据概览">
+        <div><strong>673</strong><span>正向流程氢化物样本</span></div>
+        <div><strong>471</strong><span>逆向流程 MP 建模样本</span></div>
+        <div><strong>27</strong><span>逆向严格外部验证样本</span></div>
+      </div>
+      <div class="stage-line" aria-label="工作阶段">
+        <span class="done">01 正向 / 逆向流程 · 当前结果</span>
+        <span class="working">02 文献方法 · 已整理并复核</span>
+        <span class="done">03 数据提取 · MP / JARVIS / HydPARK 已完成</span>
+      </div>
+    </section>
+
+    <aside class="origin-band band-inner" aria-label="流程方法出发点">
+      <div><p class="section-no">方法出发点</p><h2 id="origin-title"></h2></div>
+      <div class="origin-copy"><p id="origin-role"></p><p class="origin-meta" id="origin-meta"></p><details><summary>查看原文证据位置</summary><ul id="origin-evidence"></ul></details></div>
+    </aside>
+
+    <section class="band section-head workflow-section-head" id="workflows">
+      <div><p class="section-no">01</p><h2>正向与逆向：两种视角汇入同一条候选路线</h2></div>
+      <p>正向从氢化物形成能出发，逆向从母体合金理论容量出发；二者共享评分逻辑，但数据对象、特征边界与选模规则分别定义。</p>
+    </section>
+
+    <section class="shared-pipeline band-inner" aria-label="正反向流程共同主线">
+      <article><span>01</span><h3>数据角色分层</h3><p>区分 MP 理论氢化物、MP 母体理论标签与 HydPARK 实验记录，避免理论和实验标签混训。</p></article>
+      <article><span>02</span><h3>两种对象表征</h3><p>正向组合 MP/DFT 物性、论文六特征和含氢先验；逆向只使用母体化学式派生特征。</p></article>
+      <article><span>03</span><h3>Pipeline 内筛选</h3><p>零方差、Spearman 剪枝与标准化随训练折拟合，测试数据不参与当次预处理参数学习。</p></article>
+      <article><span>04</span><h3>七模型同台比较</h3><p>正向按调参后留出集选择；逆向先由训练集 GroupKFold 确定 one-SE 候选，再结合开发展示结果指定最终模型。</p></article>
+      <article><span>05</span><h3>解释、评分、交叉</h3><p>用 SHAP 解释模型信号，以完整 E-factor 半圆评分，再比较两条路线的 Top15 母体交集。</p></article>
+    </section>
+
+    <section class="data-role-band band">
+      <div class="role-intro"><p class="section-no">数据基础</p><h2>先说明每一类数据在流程中扮演什么角色</h2><p>两条流程都从 MP 理论数据出发；HydPARK 只进入逆向流程的外部实验核验，不参与训练、特征筛选、选模或评分融合。</p></div>
+      <div class="data-role-grid" id="workflow-data-roles"></div>
+    </section>
+
+    <section class="workflow-compare band-inner">
+      <article class="workflow-panel forward-panel">
+        <div class="workflow-title"><span>Forward</span><b>形成能预测</b></div>
+        <h3>氢化物组成与结构物性 → 形成能 → 候选评分</h3>
+        <dl class="workflow-facts">
+          <dt>数据与标签</dt><dd>673 个去重 MP 氢化物；DFT 形成能（eV/atom）</dd>
+          <dt class="hover-term" tabindex="0" aria-describedby="forward-feature-tip">输入特征<span aria-hidden="true">i</span><span class="hover-card" id="forward-feature-tip" role="tooltip"></span></dt><dd>5 个 MP/DFT 物性 + 论文六个组成描述符 + 2 个含氢先验</dd>
+          <dt>特征工程</dt><dd>13 个候选特征，经训练集 Spearman 剪枝后保留 9 个</dd>
+          <dt>验证方式</dt><dd>固定 80/20 留出：538 条训练、135 条测试；不报告 OOF 或重复交叉验证</dd>
+        </dl>
+        <div class="metric-row"><span>调参后冠军</span><strong id="forward-model"></strong></div>
+        <div class="metric-row"><span>测试集 R²</span><strong id="best-r2"></strong></div>
+        <div class="metric-row"><span>测试集 RMSE</span><strong id="best-rmse"></strong></div>
+        <div class="metric-row"><span>测试集 MAE</span><strong id="best-mae"></strong></div>
+        <button class="text-button" id="toggle-models" type="button" aria-expanded="false">展开正向七模型调参结果</button>
+        <div class="model-table-wrap" id="model-table-wrap" hidden>
+          <table><thead><tr><th>模型</th><th>Test R²</th><th>RMSE</th><th>MAE</th></tr></thead><tbody id="model-table"></tbody></table>
+        </div>
+      </article>
+      <article class="workflow-panel reverse-panel">
+        <div class="workflow-title"><span>Reverse</span><b>理论容量预测</b></div>
+        <h3>母体合金组成 → 最大理论容量 → MP-only 评分与实验核验</h3>
+        <dl class="workflow-facts">
+          <dt>数据与标签</dt><dd>471 个非重合 MP 母体；最大容量氢化物相的理论氢质量分数</dd>
+          <dt class="hover-term" tabindex="0" aria-describedby="reverse-feature-tip">输入特征<span aria-hidden="true">i</span><span class="hover-card" id="reverse-feature-tip" role="tooltip"></span></dt><dd>11 个紧凑母体描述符 + 11 个预先限定的 Magpie 互补描述符</dd>
+          <dt>特征工程</dt><dd>训练集折内由 22 个剪枝为 15 个；全量重训时最终保留 16 个</dd>
+          <dt>验证方式</dt><dd>训练集 GroupKFold 调参 + 固定 376/95 开发展示；另有 27 个完全隔离外部母体</dd>
+        </dl>
+        <div class="metric-row"><span>最终采用模型</span><strong id="reverse-model"></strong></div>
+        <div class="metric-row"><span>测试集 R²</span><strong id="reverse-holdout-r2"></strong></div>
+        <div class="metric-row"><span>测试集 RMSE</span><strong id="reverse-holdout-rmse"></strong></div>
+        <div class="metric-row"><span>外部 MAE（实验最大）</span><strong id="reverse-external-mae"></strong></div>
+        <button class="text-button" id="toggle-reverse-models" type="button" aria-expanded="false">展开逆向七模型调参结果</button>
+        <div class="model-table-wrap" id="reverse-model-table-wrap" hidden>
+          <table><thead><tr><th>模型</th><th>Test R²</th><th>CV RMSE（fraction）</th><th>稳定性</th></tr></thead><tbody id="reverse-model-table"></tbody></table>
+        </div>
+      </article>
+    </section>
+
+    <section class="model-diagnostics band-inner">
+      <div class="visual-heading"><p class="kicker">Model diagnostics</p><h3>把拟合程度与残差结构放到同一尺度核对</h3><p>两幅图都对应固定留出集；正向用于最终开发评估，逆向用于开发诊断并另设严格外部实验核验。</p></div>
+      <figure><img id="forward-diagnostics-image" alt="正向流程最优模型奇偶图与残差图"><figcaption><b>正向流程</b>：CatBoost 的训练/测试奇偶图与测试残差，测试集包含 135 条氢化物。</figcaption></figure>
+      <figure><img id="reverse-diagnostics-image" alt="逆向流程最优模型留出集奇偶图与残差图"><figcaption><b>逆向流程</b>：Random Forest 的训练/测试奇偶图与测试残差，测试集包含 95 条母体合金。</figcaption></figure>
+    </section>
+
+    <section class="shap-band band">
+      <div class="shap-heading"><p class="section-no">模型解释</p><h2>最重要的描述符是什么，它们把预测推向哪里</h2><p id="shap-boundary"></p></div>
+      <div class="shap-gallery">
+        <figure><img id="forward-shap-image" alt="正向流程形成能预测 SHAP 分布"><figcaption><b>正向：</b>电负性（原子数加权）与密度是形成能模型中最强的两个全局信号。</figcaption></figure>
+        <figure><img id="reverse-shap-image" alt="逆向流程容量预测 SHAP 分布"><figcaption><b>逆向：</b>母体平均原子序数与原子数加权平均共价半径主导当前理论容量的组成关联。</figcaption></figure>
+      </div>
+      <div class="shap-insight-grid" id="shap-insight-grid"></div>
+    </section>
+
+    <section class="score-band band">
+      <div class="score-copy">
+        <p class="section-no">共享评分核心</p>
+        <h2 id="score-formula-title">Score = E-factor × W<sub>H2</sub></h2>
+        <p>完整半圆 E-factor 提供热力学适配权重，氢质量分数提供容量倾向；两条流程共享公式，但容量信息来源不同。</p>
+        <div class="equation" id="energy-factor"></div>
+        <div class="score-uses"><p><b>正向</b><span>真实或预测形成能 × 氢化物自身氢质量分数</span></p><p><b>逆向</b><span>配对 MP 形成能 × 母体模型预测最大理论容量</span></p></div>
+        <div class="warning"><strong>解释边界</strong><p id="score-caveat"></p></div>
+      </div>
+      <div class="score-figures"><figure><img id="forward-score-image" alt="正向流程评分诊断"><figcaption>正向：形成能预测误差是否改变候选排序</figcaption></figure><figure><img id="reverse-score-image" alt="逆向流程评分诊断"><figcaption>逆向：容量预测相对仅 E-factor 基线带来的排序增益</figcaption></figure></div>
+    </section>
+
+    <section class="candidate-band band-inner">
+      <div class="candidate-heading"><p class="kicker">Predicted shortlist</p><h2>评分之后，哪些候选进入优先队列</h2><p>两张表均按模型预测评分排序，并从原流程结果表重新组织为网页字段。预测名次用于筛选，理论标签名次只用于回顾性核对。</p></div>
+      <div class="candidate-tables">
+        <article>
+          <div class="candidate-title"><span>Forward</span><h3>氢化物预测评分 Top 15</h3><p>预测形成能与氢化物自身 W<sub>H2</sub> 共同决定评分。</p></div>
+          <div class="candidate-table-wrap"><table><thead><tr><th>预测名次</th><th>氢化物</th><th>映射母体</th><th>实际形成能</th><th>预测形成能</th><th>绝对误差</th><th>W<sub>H2</sub></th><th>实际评分</th><th>预测评分</th></tr></thead><tbody id="forward-candidate-table"></tbody></table></div>
+        </article>
+        <article>
+          <div class="candidate-title"><span>Reverse</span><h3>母体合金预测评分 Top 15</h3><p>母体预测容量与其配对氢化物的 E-factor 共同决定评分。</p></div>
+          <div class="candidate-table-wrap"><table><thead><tr><th>预测名次</th><th>母体合金</th><th>对应氢化物</th><th>实际容量</th><th>预测容量</th><th>绝对误差</th><th>E-factor</th><th>实际评分</th><th>预测评分</th></tr></thead><tbody id="reverse-candidate-table"></tbody></table></div>
+        </article>
+      </div>
+      <p class="candidate-boundary">注：正向预测形成能单位为 eV/atom；两表中的 W<sub>H2</sub> 与预测容量统一显示为 wt.%；评分为无量纲排序量。</p>
+    </section>
+
+    <section class="closure-band band-inner">
+      <div class="closure-heading"><p class="kicker">Cross-flow evidence</p><h2>两条路线在哪里会合，哪里仍需实验校准</h2><p>候选交集回答“谁值得优先看”，严格外部验证回答“理论容量能否直接当作实验容量”。这两个问题必须分开。</p></div>
+      <div class="closure-metrics" id="closure-metrics"></div>
+      <div class="closure-figures">
+        <figure><img id="cross-flow-image" alt="正向与逆向流程 Top15 母体交集"><figcaption><b>路线会合：</b>正向氢化物映射后的母体排名，与逆向母体直接排名进行 Top15 对照。</figcaption></figure>
+        <figure><img id="reverse-external-image" alt="逆向流程严格外部实验验证"><figcaption><b>实验边界：</b>27 个完全隔离母体上的预测容量与实验最大值/中位值对照。</figcaption></figure>
+      </div>
+      <div class="closure-warning" id="external-boundary"></div>
+    </section>
+
+    <section class="insight-band band-inner">
+      <div class="insight-heading"><p class="kicker">Research implications</p><h2>两套流程带来的研究启发</h2><p>重点不只是获得两个模型，而是用相互独立的视角提高候选优先级，并把理论筛选与实验标定的边界保留下来。</p></div>
+      <div class="research-insights" id="research-insights"></div>
+    </section>
+
+    <section class="band section-head literature-head" id="literature">
+      <div><p class="section-no">02</p><h2>文献方法图谱：从“论文列表”转向“可迁移任务库”</h2></div>
+      <p>每篇论文保留材料体系、预测目标、输入/输出、模型、证据位置与复核状态；同文献的不同输出作为独立子任务展示。</p>
+    </section>
+
+    <section class="literature-console band-inner">
+      <div class="axis-tabs" role="tablist" aria-label="分类轴">
+        <button class="active" type="button" data-axis="materialTags" role="tab">材料体系</button>
+        <button type="button" data-axis="outputTags" role="tab">输出目标</button>
+        <button type="button" data-axis="methodTags" role="tab">方法范式</button>
+        <button type="button" data-axis="sourceTags" role="tab">数据来源</button>
+      </div>
+      <div class="classification-grid">
+        <div class="category-cloud" id="category-cloud"></div>
+        <div class="class-note"><strong>统计口径</strong><p id="class-note"></p><p>类别字号分级与文献数量对应；点击类别后，下方直接显示匹配文献。</p></div>
+      </div>
+      <div class="matrix-panel">
+        <div><p class="kicker">Cross-category view</p><h3>材料体系 × 输出目标</h3><p>单元格表示同时属于两个类别的文献数，点击非零单元格可直接查看交集。</p></div>
+        <div class="relation-matrix-wrap" id="relation-matrix"></div>
+      </div>
+      <div class="literature-search">
+        <label for="paper-search"><span>按输出目标检索</span><input id="paper-search" type="search" autocomplete="off" placeholder="例如：氢化焓、H/M、形成能、吸氢速率"></label>
+        <p id="search-concept-hint">同义名称会归入统一输出概念后再匹配。</p>
+      </div>
+      <div class="paper-result-bar"><span id="paper-result-count"></span><div class="active-filter" id="active-filter" hidden></div><button id="clear-filter" type="button" hidden>清除筛选</button></div>
+      <div class="paper-list" id="paper-list"></div>
+      <button class="more-button" id="show-more" type="button">显示更多文献</button>
+    </section>
+
+    <section class="dynamic-direction band-inner" id="dynamic-direction">
+      <header class="direction-heading">
+        <div><p class="kicker">Evidence to research route</p><h2 id="dynamic-title"></h2></div>
+        <p id="dynamic-lead"></p>
+      </header>
+
+      <div class="literature-gap">
+        <div class="gap-copy"><span>文献归纳</span><strong>静态目标更密集，动态标签更难获取</strong><p id="dynamic-survey-note"></p></div>
+        <div class="gap-bars" id="dynamic-survey-counts" aria-label="文献目标类别命中数"></div>
+      </div>
+
+      <div class="framework-heading">
+        <div><p class="kicker">Reaction-stage framework</p><h3 id="dynamic-framework-title"></h3><p id="dynamic-framework-text"></p></div>
+        <div class="framework-citations" id="dynamic-framework-citations" aria-label="框架参考文献"></div>
+      </div>
+      <div class="reaction-path" id="dynamic-reaction-path" aria-label="储氢反应阶段与需求特征"></div>
+      <div class="cross-stage-tracks" id="dynamic-cross-stage" aria-label="跨反应阶段的实验与尺度边界"></div>
+
+      <div class="method-evidence">
+        <div class="evidence-switcher" id="dynamic-evidence-tabs" role="tablist" aria-label="方法证据分类"></div>
+        <div class="evidence-case-panel" id="dynamic-evidence-panel" role="tabpanel" aria-live="polite"></div>
+      </div>
+
+      <section class="pilot-direction">
+        <div class="pilot-heading"><p class="kicker">First executable route</p><h3 id="dynamic-pilot-title"></h3><p id="dynamic-pilot-text"></p></div>
+        <div class="pilot-route" id="dynamic-pilot-route" aria-label="分层代理建模路线"></div>
+        <div class="pilot-guardrails"><p id="dynamic-pilot-calibration"></p><p id="dynamic-pilot-leakage"></p><p id="dynamic-pilot-validation"></p></div>
+      </section>
+
+      <p class="dynamic-boundary" id="dynamic-boundary"></p>
+    </section>
+
+    <section class="band section-head" id="data">
+      <div><p class="section-no">03</p><h2>数据基础：统一筛选后的候选与实验证据</h2></div>
+      <p id="data-status"></p>
+    </section>
+    <section class="data-foundation band-inner">
+      <div class="source-grid" id="source-grid"></div>
+      <div class="foundation-metrics" id="foundation-metrics"></div>
+      <div class="boundary"><strong>统一口径的第一条边界</strong><p id="data-boundary"></p></div>
+      <div class="database-comparison" id="database-comparison"></div>
+      <div class="foundation-gallery">
+        <section class="foundation-figure-group">
+          <header><span>01 · 统一筛选</span><h3>同一口径分别作用于 MP 与 JARVIS</h3><p>漏斗图展示原始记录、元素范围约束与化学式去重，不把数据库全部含 H 条目直接视作可用储氢候选。</p></header>
+          <div><figure><img id="mp-funnel-image" alt="Materials Project 氢化物统一筛选漏斗"><figcaption>MP：10,465 条含 H 原始记录经元素范围约束与去重后，得到 677 个氢化物化学式。</figcaption></figure><figure><img id="jarvis-funnel-image" alt="JARVIS 氢化物统一筛选漏斗"><figcaption>JARVIS：75,993 条 dft_3d 原始记录中识别 869 条氢化物结构，去重后保留 566 个化学式。</figcaption></figure></div>
+        </section>
+        <section class="foundation-figure-group">
+          <header><span>02 · 稀土聚焦</span><h3>氢化物与无 H 母体候选分开分类</h3><p>二元氢化物、AB5、AB2、RE–Mg–Ni、其他 RE–Mg 与复杂氢化物使用同一组保守组成判据；结构型名称仍需后续结构复核。</p></header>
+          <div><figure><img id="mp-rare-earth-image" alt="Materials Project 含稀土重点体系分类"><figcaption>MP 含稀土氢化物 168 个，六类重点体系覆盖 120 个；无 H 稀土母体候选另行统计。</figcaption></figure><figure><img id="jarvis-rare-earth-image" alt="JARVIS 含稀土重点体系分类"><figcaption>JARVIS 含稀土氢化物 95 个，六类重点体系覆盖 77 个；无 H 母体不与氢化物状态混合。</figcaption></figure></div>
+        </section>
+        <section class="foundation-figure-group hydpark-group">
+          <header><span>03 · 实验证据</span><h3>两套 HydPARK 数据互补，但共同配方仍需条件对齐</h3><p>先比较规模、字段完整度和共同配方，再讨论容量一致性；相同化学式并不自动代表相同温度、压力或样品状态。</p></header>
+          <div><figure><img id="hydpark-overview-image" alt="HyStor 与 ML-HYDPARK 数据规模和字段完整度"><figcaption>HyStor 记录更多且温度字段完整；ML-HYDPARK 补充形成热、压力与 H/M 等建模字段。</figcaption></figure><figure><img id="hydpark-consistency-image" alt="HyStor 与 ML-HYDPARK 共同配方容量一致性"><figcaption>372 个共同配方具备容量对照，排序高度一致，但偏离点提示实验条件与来源信息不能省略。</figcaption></figure></div>
+        </section>
+      </div>
+      <div class="foundation-summary">
+        <div><p class="kicker">Current reading</p><h3>这一轮数据调研说明了什么</h3></div>
+        <ol id="foundation-summary-list"></ol>
+      </div>
+    </section>
+
+    <section class="evidence band" id="evidence">
+      <div>
+        <p class="section-no">证据边界</p>
+        <h2>当前结果可以说明什么，也明确不说明什么</h2>
+      </div>
+      <ul>
+        <li><strong>可以：</strong>复核正向流程的 13→9 特征工程、七模型调参与固定留出集表现。</li>
+        <li><strong>可以：</strong>复核逆向流程的训练集分组选模、固定留出诊断、严格外部验证与排名行为。</li>
+        <li><strong>可以：</strong>用 10 个共同母体和 66.7% Top15 重合率识别跨流程优先候选。</li>
+        <li><strong>可以：</strong>按 51 篇文献、77 个子任务浏览材料、目标、方法和数据来源证据。</li>
+        <li><strong>边界：</strong>逆向固定测试集参与了最终模型采用决策，属于开发展示；27 条 HydPARK 重合母体才是完全隔离的外部实验核验。</li>
+        <li><strong>边界：</strong>SHAP、内部排名和跨流程交集都是模型证据，不替代结构机理或实验性能证明。</li>
+        <li><strong>可以：</strong>展示 MP、JARVIS 的独立筛选结果，以及 HyStor 与 ML-HYDPARK 的字段和共同配方对照。</li>
+        <li><strong>边界：</strong>当前第三部分不包含 OQMD 完成结果，也不把理论候选数量解释为实验可逆储氢材料数量。</li>
+      </ul>
+    </section>
+
+    <section class="references band-inner">
+      <h2>核心参考文献</h2>
+      <ol id="reference-list"></ol>
+      <p class="source-note">详细文献证据、页码和不确定项保留在《机器学习文献方法抽取表_最终版.xlsx》中。</p>
+    </section>
+  </main>
+
+  <div class="image-preview" id="image-preview" aria-hidden="true">
+    <img id="image-preview-content" alt="">
+  </div>
+
+  <footer><span>沈子钧 · 马雪璐</span><span>阶段总结基础版</span></footer>
+  <script src="report-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
