@@ -1,0 +1,9 @@
+{
+  "name": "Plotly.js",
+  "version": "3.1.1",
+  "repository": "https://github.com/plotly/plotly.js/tree/v3.1.1",
+  "artifact": "https://cdn.jsdelivr.net/npm/plotly.js-dist-min@3.1.1/plotly.min.js",
+  "license": "MIT",
+  "modifications": "None. Application uses react, mesh3d lighting, scatter3d cell edges, scene axes and relayout. Sphere geometry and application controls are original application code.",
+  "sha256": "1d4105c9f8939d92710b1babf7d1636ca613bca4b3c03683dffc794ea1e916ee"
+}

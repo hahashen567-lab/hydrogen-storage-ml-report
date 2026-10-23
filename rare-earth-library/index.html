@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>稀土合金与氢化物 · 晶体结构库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script defer src="vendor/plotly-3.1.1.min.js"></script>
+  <script defer src="assets/elements.js"></script>
+  <script defer src="assets/dataset.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+<main class="explorer">
+  <header class="page-header">
+    <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="m20 4 14 8v16l-14 8-14-8V12Z M6 12l14 8 14-8 M20 20v16 M20 4v16 M6 28l14-8 14 8" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="20" r="3.8" fill="currentColor"/></svg></div>
+    <div><p class="eyebrow">CRYSTAL STRUCTURE LIBRARY</p><h1>稀土合金与氢化物</h1><p id="dataset-summary" class="subtitle">正在读取本地结构数据…</p></div>
+    <a class="local-badge source-download" href="downloads/materials-explorer-source.zip" download="materials-explorer-source.zip">↓ 下载源码包</a>
+    <span class="local-badge"><i></i> 在线结构数据库</span>
+  </header>
+
+  <section class="search-section" aria-label="按元素检索">
+    <form id="search-form" novalidate>
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.7"/></svg>
+        <div id="element-chips" class="element-chips" aria-label="已选元素"></div>
+        <input id="element-input" aria-label="输入元素符号" placeholder="选择下方元素，或输入 La、Ni、H" autocomplete="off" spellcheck="false">
+        <button id="periodic-toggle" class="periodic-toggle" type="button" aria-label="收起元素周期表" aria-expanded="true" aria-controls="periodic-panel" title="展开 / 收起元素周期表"><svg viewBox="0 0 42 28" aria-hidden="true"><path d="M1 1h4v4H1zm36 0h4v4h-4zM1 7h4v4H1zm6 0h4v4H7zm20 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zM1 13h4v4H1zm6 0h4v4H7zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zM1 19h4v4H1zm6 0h4v4H7zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zm5 0h4v4h-4zM12 25h24v3H12z" fill="currentColor"/></svg></button>
+        <button class="primary-button" type="submit">查询 <span aria-hidden="true">↗</span></button>
+      </div>
+      <div class="search-options"><fieldset class="match-mode"><legend class="sr-only">元素匹配方式</legend><label><input type="radio" name="match" value="contains" checked>包含所选元素</label><label><input type="radio" name="match" value="exact">仅含所选元素</label></fieldset><span class="match-hint" id="match-hint">允许材料包含其他元素</span><button id="clear" type="button" class="text-button">清空条件</button></div>
+      <p id="search-error" class="error" role="alert" hidden></p>
+    </form>
+    <div id="periodic-panel" class="periodic-panel">
+      <div class="periodic-heading"><h2>元素周期表 <span>点击元素，即刻筛选</span></h2><div class="legend"><span><i class="rare-dot"></i> 稀土元素</span><span><i class="other-dot"></i> 其他元素</span><span class="heat-label">浅 <i class="heat-scale"></i> 深：条目数</span></div></div>
+      <div class="periodic-scroll"><div id="periodic-table" class="periodic-table" aria-label="交互元素周期表"></div></div>
+      <p class="periodic-footnote">格内数字为包含该元素的独立条目数；灰色元素在当前数据中未出现。选中多个元素时，结果须同时包含它们。</p>
+    </div>
+  </section>
+
+  <section class="results-section" aria-labelledby="results-heading">
+    <div class="section-heading"><div class="heading-line"><h2 id="results-heading">材料条目</h2><span id="result-count" class="count-badge"></span></div><span class="section-note">母体与对应氢化物相邻排列 · 点击条目查看晶胞</span></div>
+    <div class="table-scroll"><table><thead><tr><th>化学式 / 材料</th><th>空间群</th><th>形成能 <small>eV/atom</small></th><th>氢化能 <small>eV/H</small></th><th>H/M</th><th><span class="sr-only">查看</span>结构</th></tr></thead><tbody id="results-body"></tbody></table></div>
+    <div id="empty-state" class="empty-state" hidden><span aria-hidden="true">⌕</span><h3>没有匹配的材料</h3><p>试试减少所选元素，或切换到“包含所选元素”。</p><button id="empty-clear" class="secondary-button">清空筛选</button></div>
+    <div class="pagination"><p id="page-summary" aria-live="polite"></p><div><label class="page-size-label">每页 <select id="page-size" aria-label="每页条目数"><option>10</option><option selected>20</option><option>50</option></select></label><button id="prev-page" class="page-button" aria-label="上一页">←</button><span id="page-number"></span><button id="next-page" class="page-button" aria-label="下一页">→</button></div></div>
+  </section>
+
+  <section id="structure-section" class="structure-section" aria-labelledby="structure-heading">
+    <div class="section-heading"><div class="heading-line"><h2 id="structure-heading">晶体结构</h2><span id="selected-kind" class="kind-badge"></span></div><span class="section-note">拖动旋转 · 滚轮缩放 · Shift + 拖动平移</span></div>
+    <div class="structure-layout">
+      <div class="viewer-panel"><div class="viewer-toolbar"><div class="segmented" aria-label="晶胞范围"><button type="button" data-repeat="1" aria-pressed="true">单晶胞</button><button type="button" data-repeat="2" aria-pressed="false">2 × 2 × 2</button></div><div><label class="cell-checkbox"><input id="show-grid" type="checkbox" checked>坐标网格</label><label class="cell-checkbox"><input id="show-cell" type="checkbox" checked>晶胞框</label><button id="reset-view" class="icon-button" title="恢复视角" aria-label="恢复视角">↺</button></div></div><div id="crystal-viewer" class="crystal-viewer" aria-label="交互晶体结构"></div><div id="viewer-message" class="viewer-message" hidden></div><div class="viewer-bottom"><div id="atom-legend" class="atom-legend"></div><span id="atom-count"></span></div><p id="atom-info" class="atom-info">悬停或点击原子查看元素与坐标</p></div>
+      <aside class="structure-details"><p class="eyebrow">SELECTED STRUCTURE</p><h3 id="detail-formula">选择一个材料</h3><p id="detail-id" class="detail-id"></p><div id="related-records" class="related-records"></div><dl id="detail-properties" class="properties"></dl><button id="download-cif" class="secondary-button download-button">↓ 下载原始 CIF</button><p class="detail-note">坐标网格单位为 Å；深色边框为真实晶胞。空间群由结构识别（容差 0.01 Å）；原子球大小辅助辨识元素。氢化能为 0 K DFT 反应能，未包含热修正。</p></aside>
+    </div>
+  </section>
+  <footer><span>稀土材料 · 结构与能量探索</span><details><summary id="data-status">数据说明</summary><p id="data-note"></p></details></footer>
+  <noscript>此展示需要浏览器启用 JavaScript。</noscript>
+</main>
+</body>
+</html>
